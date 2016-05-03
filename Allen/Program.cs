@@ -12,8 +12,10 @@ namespace Allen {
 		private static string token;
 		public static DiscordClient bot;
 		private static string ExecDir;
+		public static Random random;
 		public static void Main (string[] args) {
 			ExecDir = Path.GetDirectoryName (System.Reflection.Assembly.GetExecutingAssembly ().Location);
+			random = new Random ();
             bot = new DiscordClient ();
 			for (int i = 0; i < args.Length; i++) {
 				if (args[i] == "-token" && args[i + 1] != null) {
@@ -44,40 +46,82 @@ namespace Allen {
 		}
 
 		static async void OnMessageReceived (object sender,MessageEventArgs e) {
+			string input = e.Message.Text.ToUpper();
 			string response = "";
+			
 			if (e.User.Id == bot.CurrentUser.Id) {
 				return;
 			}
-			if (e.Message.Text.ToUpper ().Contains ("ALLEN")) { //Main command, summons allen
+			if (input.Contains ("ALLEN")) { //Main command, summons allen
 				#region Nonchat
-				if (e.Message.Text.ToUpper ().Contains ("JOIN ME")) {
+				if (input.Contains ("JOIN")) {
 					//await e.User.VoiceChannel.JoinAudio ();
 					try {
 						IAudioClient audio = await e.User.VoiceChannel.JoinAudio ();
-						FileStream a1 = File.OpenRead (ExecDir + "\\Resources\\wearein.wav");
+						FileStream a1 = File.OpenRead (ExecDir + "\\Resources\\mems.mp3");
 						Console.WriteLine (ExecDir + "\\Resources\\mlg.wav");
 						a1.Position = 0;
 						a1.CopyTo (audio.OutputStream);
 						a1.Dispose ();
-					} catch { }
+					} catch (Exception ex) {
+						Console.WriteLine("eror: " + ex.Message);
+					}
 					return;
-				} else if (e.Message.Text.ToUpper ().Contains ("PLEASE LEAVE")) {
+				} else if (input.Contains ("PLEASE") && input.Contains ("LEAVE")) {
 					await e.User.VoiceChannel.LeaveAudio ();
 					return;
 				}
 				#endregion
-				response += "Hello";
-				if (e.Message.Text.ToUpper ().Contains ("DO ME A FUNY")) {
-					response += ":ok_hand:";
+				response += ChooseRandom (Data.Greetings);
+				if (input.Contains ("DO ME A FUNY")) {
+					response += ChooseRandom (Data.Jokes);
 				}
 			}
 			//FileStream a1 = File.OpenRead ("")
 			if (response != "") await e.Channel.SendTTSMessage (response);
 			Console.WriteLine (e.User.Name + " said " + e.Message.Text + " my man");
 		}
+		public static string ChooseRandom (string[] input) {
+			int randIndex = random.Next (0, input.Length);
+			return input[randIndex];
+		}
 	}
-	struct Sound {
-		string[] Directories;
-		string[] Keywords;
+	public class Data {
+		public static string[] Greetings = {
+			"Hello",
+			"Howdy",
+			"Heya",
+			"Hi"
+		};
+		public static string[] Jokes = {
+			":ok_hand:",
+			"i cannot funy today"
+		};
+		public static Sound[] Sounds = {
+			new Sound (
+				new string[] {
+			       	"eee"
+			    },
+			    new string[] {
+			    	"eee"
+				}
+			),
+			new Sound (
+				new string[] {
+					"uuu"
+				},
+				new string[] {
+					"uuu"
+				}
+			)
+		};
+	}
+	public class Sound {
+		string[] fileNames = {};
+		string[] commands = {};
+		public Sound (string[] FileNames, string[] Commands) {
+			fileNames = FileNames;
+			commands = Commands;
+		}
 	}
 }
