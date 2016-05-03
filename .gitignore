@@ -9,6 +9,8 @@
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+Allen/[Bb]in/[Dd]ebug/libsodium.dll
+Allen/[Bb]in/[Dd]ebug/opus.dll
 
 # Build results
 [Dd]ebug/
