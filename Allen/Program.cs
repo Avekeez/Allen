@@ -13,7 +13,10 @@ namespace Allen {
 		public static DiscordClient bot;
 		private static string ExecDir;
 		public static Random random;
+		public static List<string> AcknowledgedUsers;
+
 		public static void Main (string[] args) {
+			AcknowledgedUsers = new List<string> ();
 			ExecDir = Path.GetDirectoryName (System.Reflection.Assembly.GetExecutingAssembly ().Location);
 			random = new Random ();
             bot = new DiscordClient ();
@@ -64,26 +67,36 @@ namespace Allen {
 						a1.CopyTo (audio.OutputStream);
 						a1.Dispose ();
 					} catch (Exception ex) {
+						if (e.User.VoiceChannel == null) e.Channel.SendMessage (ChooseRandom (Data.Insults) + ChooseRandom (Data.VoiceStateWarnings));
 						Console.WriteLine("eror: " + ex.Message);
 					}
 					return;
 				} else if (input.Contains ("PLEASE") && input.Contains ("LEAVE")) {
-					await e.User.VoiceChannel.LeaveAudio ();
+					try {
+						await e.User.VoiceChannel.LeaveAudio ();
+					} catch (Exception ex) {
+						if (e.User.VoiceChannel == null) e.Channel.SendMessage (ChooseRandom (Data.Insults) + ChooseRandom (Data.VoiceStateWarnings));
+					}
 					return;
 				}
 				#endregion
-				response += ChooseRandom (Data.Greetings);
-				if (input.Contains ("DO ME A FUNY")) {
+				if (!AcknowledgedUsers.Contains (e.User.Name)) {
+					response += ChooseRandom (Data.Greetings) + "\n";
+					AcknowledgedUsers.Add (e.User.Name);
+				}
+				if (input.Contains ("FUNY")) {
 					response += ChooseRandom (Data.Jokes);
 				}
 			}
 			//FileStream a1 = File.OpenRead ("")
-			if (response != "") await e.Channel.SendTTSMessage (response);
+			if (response != "") e.Channel.SendMessage (response);
 			Console.WriteLine (e.User.Name + " said " + e.Message.Text + " my man");
 		}
 		public static string ChooseRandom (string[] input) {
 			int randIndex = random.Next (0, input.Length);
 			return input[randIndex];
+		}
+		static string GetResourceDirectory () {
 		}
 	}
 	public class Data {
@@ -94,26 +107,20 @@ namespace Allen {
 			"Hi"
 		};
 		public static string[] Jokes = {
-			":ok_hand:",
-			"i cannot funy today"
+			"I for one like Roman numerals.",
+			"Shout out to all the people wondering what the opposite of in is.",
+			"My poor knowledge of Greek mythology has always been my Achilles' elbow.",
+			"I have an inferiority complex, but it's not a very good one.",
+			"Jokes about socialism aren't funny unless you share them with everyone.",
+			"Lif is too short."
 		};
-		public static Sound[] Sounds = {
-			new Sound (
-				new string[] {
-			       	"eee"
-			    },
-			    new string[] {
-			    	"eee"
-				}
-			),
-			new Sound (
-				new string[] {
-					"uuu"
-				},
-				new string[] {
-					"uuu"
-				}
-			)
+		public static string[] VoiceStateWarnings = {
+			"join a channel first",
+		};
+		public static string[] Insults = {
+			"you idiot, ",
+			"what, you egg! ",
+			"Fraudulent bumsquatch, "
 		};
 	}
 	public class Sound {
